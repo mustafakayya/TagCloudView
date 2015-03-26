@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TagCloudView">
+        <attr name="tcTagCloudBgColor"          format="color"/>
+        <attr name="tcTagViewTextColor"         format="color" />
+        <attr name="tcTagViewSelectedBgColor"   format="color" />
+        <attr name="tcTagViewHorizontalMargin"  format="dimension"/>
+        <attr name="tcTagViewHorizontalPadding" format="dimension"/>
+        <attr name="tcTagViewVerticalPadding"   format="dimension"/>
+        <attr name="tcTagViewTextSize"          format="dimension"/>
+    </declare-styleable>
+</resources>
