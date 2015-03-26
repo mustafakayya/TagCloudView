@@ -4,6 +4,8 @@ This library for made TagCloud for Android.
 
 <img src="https://raw.githubusercontent.com/mustafakayya/TagCloudView/master/app/src/main/res/drawable/sample.png" width="400px" height="235px" />
 
+<img src="https://raw.githubusercontent.com/mustafakayya/TagCloudView/master/app/src/main/res/drawable/sample2.png" width="400px" height="235px" />
+
 Install
 --------------
 
