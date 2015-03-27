@@ -169,6 +169,7 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
         this.listener = listener;
     }
 
+
     @Override
     public void onClick(View v) {
         int newSelectedTag = (int) v.getTag();
