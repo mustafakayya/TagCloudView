@@ -3,6 +3,8 @@ package kayya.com.tagcloudview.tagview;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -16,9 +18,10 @@ import kayya.com.tagcloudview.utils.Utils;
 public class TagView extends TextView {
 
     // Attributes
-    private int selectedBgColor ;
-    private int textColor ;
+    private int selectedBgColor;
+    private int textColor;
     private float textSize;
+    private boolean isSelected;
 
     public TagView(Context context) {
         super(context);
@@ -67,13 +70,14 @@ public class TagView extends TextView {
         tagView.setLayoutParams(layoutParams);
         tagView.setBackgroundResource(R.drawable.bg_tagview);
         tagView.setAttributes(new TagViewAttributes());
+        tagView.isSelected = false;
         return tagView;
     }
 
-    private void setAttributes(TagViewAttributes attributes){
-        selectedBgColor=attributes.getSelectedBgColor();
-        textColor=attributes.getTextColor();
-        textSize=attributes.getTextSize();
+    private void setAttributes(TagViewAttributes attributes) {
+        selectedBgColor = attributes.getSelectedBgColor();
+        textColor = attributes.getTextColor();
+        textSize = attributes.getTextSize();
         setTextSize(textSize);
         setTextColor(textColor);
     }
@@ -84,7 +88,31 @@ public class TagView extends TextView {
 
     public void unselectTag() {
         ((GradientDrawable) getBackground()).setColor(Color.TRANSPARENT);
+    }
 
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        TagViewSavedState tagViewSavedState = new TagViewSavedState(superState);
+        tagViewSavedState.selected = isSelected ? 1 : 0;
+        return tagViewSavedState;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof TagViewSavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        TagViewSavedState tagViewSavedState = (TagViewSavedState) state;
+        isSelected = tagViewSavedState.isSelected();
+        if (isSelected)
+            selectTag();
+        else
+            unselectTag();
+
+        super.onRestoreInstanceState(tagViewSavedState.getSuperState());
     }
 
 }

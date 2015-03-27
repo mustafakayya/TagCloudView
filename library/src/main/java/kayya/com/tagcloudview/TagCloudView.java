@@ -22,12 +22,15 @@ import kayya.com.tagcloudview.utils.Utils;
  */
 public class TagCloudView extends RelativeLayout implements View.OnClickListener {
 
-    private final static String TAG = "TagCloudView";
-    private ArrayList<String> tags;
-    private int selectedTagId = -1;
-    private TagViewAttributes tagViewAttributes;
-    private TagViewParams tagViewParams;
-    private TagCloudViewListener listener;
+    private final static String     TAG = "TagCloudView";
+
+    // Variables
+    private ArrayList<String>       tags;
+    private int                     selectedTagId;
+    private TagViewAttributes       tagViewAttributes;
+    private TagViewParams           tagViewParams;
+    private TagCloudViewListener    listener;
+
     // Dimens
     private float tagView_verticalPadding;
     private float tagView_horizontalPadding;
@@ -85,7 +88,7 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
     }
 
 
-    private void loadDefaultValues() {
+    protected void loadDefaultValues() {
         tagCloudView_bgColor = def_tagCloudView_bgColor;
         tagView_textColor = def_tagView_textColor;
         tagView_selectedColor = def_tagView_selectedColor;
@@ -100,6 +103,7 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
         tags = new ArrayList<>();
         tagViewAttributes = new TagViewAttributes(tagView_textColor, tagView_selectedColor, tagView_textSize);
         tagViewParams = new TagViewParams((int) tagView_horizontalMargin, (int) tagView_horizontalPadding, (int) tagView_verticalPadding);
+        selectedTagId=-1;
         setBackgroundColor(tagCloudView_bgColor);
     }
 
@@ -113,7 +117,7 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
     }
 
 
-    private void addTags() {
+    protected void addTags() {
         int layoutWidth= getMeasuredWidth() - getPaddingLeft()
                 - getPaddingRight();
         int currentWidth = 0;
@@ -125,18 +129,18 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
                     tagViewParams.setType(TagViewType.First);
                     tagView = TagView.newInstance(getContext(), 1, tagViewParams,tagViewAttributes);
                     tagView.setText(tags.get(i));
-                    currentWidth = correctWidth(tagView);
+                    currentWidth = calculateTagViewWitdh(tagView);
                 } else {
                     neighborId = getChildAt(i - 1).getId();
                     tagViewParams.setType(TagViewType.Standart);
                     tagView = TagView.newInstance(getContext(), neighborId, tagViewParams,tagViewAttributes);
                     tagView.setText(tags.get(i));
-                    currentWidth += correctWidth(tagView);
+                    currentWidth += calculateTagViewWitdh(tagView);
                     if (currentWidth > layoutWidth) {
                         tagViewParams.setType(TagViewType.LineStart);
                         tagView = TagView.newInstance(getContext(), neighborId, tagViewParams,tagViewAttributes);
                         tagView.setText(tags.get(i));
-                        currentWidth = correctWidth(tagView);
+                        currentWidth = calculateTagViewWitdh(tagView);
                     }
                 }
                 tagView.setTag(i);
@@ -147,7 +151,7 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
 
     }
 
-    public int correctWidth(TagView textView) {
+    protected int calculateTagViewWitdh(TagView textView) {
         String s = textView.getText().toString();
         float currentWidth = textView.getPaint().measureText(s);
 
@@ -166,33 +170,6 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
     }
 
     @Override
-    public Parcelable onSaveInstanceState() {
-        // begin boilerplate code that allows parent classes to save state
-        Parcelable superState = super.onSaveInstanceState();
-        SavedState ss = new SavedState(superState);
-        // end
-        ss.selectedId = this.selectedTagId;
-
-        return ss;
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        // begin boilerplate code so parent classes can restore state
-        if (!(state instanceof SavedState)) {
-            super.onRestoreInstanceState(state);
-            return;
-        }
-
-        SavedState ss = (SavedState) state;
-
-        this.selectedTagId = ss.selectedId;
-        ((TagView) getChildAt(selectedTagId)).selectTag();
-
-        super.onRestoreInstanceState(ss.getSuperState());
-    }
-
-    @Override
     public void onClick(View v) {
         int newSelectedTag = (int) v.getTag();
         if (selectedTagId != -1)
@@ -203,31 +180,62 @@ public class TagCloudView extends RelativeLayout implements View.OnClickListener
             listener.onTagViewSelected( ((TagView) getChildAt(selectedTagId)).getText().toString(),selectedTagId);
     }
 
-    static class SavedState extends BaseSavedState {
-        int selectedId;
 
-        SavedState(Parcelable superState) {
+    /**
+     *
+     * Save & Load selectedId state
+     *
+     */
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        TagCloudViewSavedState tagCloudViewSavedState = new TagCloudViewSavedState(superState);
+        tagCloudViewSavedState.selectedTagId = this.selectedTagId;
+
+        return tagCloudViewSavedState;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof TagCloudViewSavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        TagCloudViewSavedState tagCloudViewSavedState = (TagCloudViewSavedState) state;
+        this.selectedTagId = tagCloudViewSavedState.selectedTagId;
+
+        super.onRestoreInstanceState(tagCloudViewSavedState.getSuperState());
+    }
+
+
+
+   static class TagCloudViewSavedState extends BaseSavedState {
+        int selectedTagId;
+
+        TagCloudViewSavedState(Parcelable superState) {
             super(superState);
         }
 
-        private SavedState(Parcel in) {
+        private TagCloudViewSavedState(Parcel in) {
             super(in);
-            this.selectedId = in.readInt();
+            this.selectedTagId = in.readInt();
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeInt(this.selectedId);
+            out.writeInt(this.selectedTagId);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
+        public static final Parcelable.Creator<TagCloudViewSavedState> CREATOR = new Parcelable.Creator<TagCloudViewSavedState>() {
+            public TagCloudViewSavedState createFromParcel(Parcel in) {
+                return new TagCloudViewSavedState(in);
             }
 
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
+            public TagCloudViewSavedState[] newArray(int size) {
+                return new TagCloudViewSavedState[size];
             }
         };
     }

@@ -14,6 +14,10 @@ public class Utils {
 
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
 
+    /**
+     * Generate id for TagView
+     * @return
+     */
     @SuppressLint("NewApi")
     public static int generateViewId() {
 
@@ -34,7 +38,14 @@ public class Utils {
 
     }
 
-    public static float dpToPx(float _Dp) {
-        return _Dp * Resources.getSystem().getDisplayMetrics().density;
+    /**
+     * Convert dp to pixel
+     * @param dp
+     * @return pixel
+     */
+    public static float dpToPx(float dp) {
+        return dp * Resources.getSystem().getDisplayMetrics().density;
     }
+
+
 }
